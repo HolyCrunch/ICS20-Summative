@@ -1,0 +1,516 @@
+<html>
+  <head>
+    <title>ICS2O Summative</title>
+    <link rel="icon" href="Graphics/Favicon.png" type="image/x-icon">
+  </head>
+  <body onload="">
+    <canvas id="canvas" width="1440" height="720"></canvas>
+    <style>
+      html, body, div, canvas {
+        margin: 0;
+        padding: 0;
+      }
+      #canvas {
+        background-color: #CCCCCC;
+      }
+    </style>
+    <script>
+      var canvas = document.getElementById("canvas");
+      var ctx = canvas.getContext("2d");
+      //Creating variables for the context and canvas
+      var x1 = canvas.width/3;
+      var y1 = canvas.height/2;
+      var x2 = 2*x1;
+      var y2 = y1;
+      var bx1 = x1 + 20;
+      var by1 = y1 + 20;
+      var bx2 = x2 + 20;
+      var by2 = y2 + 20;
+      var unitWidth = 55;
+      var bulletWidth = 10;
+      //Creating variables to create and move units
+      var movex1 = 2.5;
+      var movey1 = 2.5;
+      var movex2 = 2.5;
+      var movey2 = 2.5;
+      var movebx1 = 5;
+      var moveby1 = -5;
+      var movebx2 = 5;
+      var moveby2 = 5;
+      var btime1 = 0;
+      var btime2 = 0;
+      //Creating variables for speed
+      var rightPressed = false;
+      var leftPressed = false;
+      var upPressed = false;
+      var downPressed = false;
+      var wPressed = false;
+      var aPressed = false;
+      var sPressed = false;
+      var dPressed = false;
+      var ePressed = false;
+      var slashPressed = false;
+      //Adding variables for keypresses
+      var orca = new Image(unitWidth, unitWidth);
+        orca.src = "Graphics/Units/OrcaUpRight.png";
+        orca.up = true;
+        orca.right = true;
+        orca.angle = 0;
+        orca.shot = false;
+      var man = new Image(unitWidth, unitWidth);
+        man.src = "Graphics/Units/ManRight.png";
+        man.right = true;
+        man.audio = new Audio();
+        man.audio.src = "Audio/ManAudio.mp3"
+        man.angle = 0;
+        man.shot = false;
+      var tomato = new Image(bulletWidth, bulletWidth);
+        tomato.src = "Graphics/Bullets/Tomato.png";
+        tomato.audio = new Audio();
+        tomato.audio.src = "Audio/FishAudio.mp3";
+        tomato.framecount = 0;
+      var fish = new Image(bulletWidth, bulletWidth);
+        fish.src = "Graphics/Bullets/Fish.png"
+        fish.audio = new Audio();
+        fish.audio.src = "Audio/TomatoAudio.mp3";
+        var background = new Image(1440, 720);
+          background.src = "Graphics/Background.png"
+      //Adding graphics and audio to the game
+      document.addEventListener("keydown", keyDownHandler, false);
+      document.addEventListener("keyup", keyUpHandler, false);
+      //Adding event listeners for when keys are pressed
+      function keyDownHandler(e){
+        if(e.key == "a"||e.key == "KeyA"){
+          aPressed = true;
+          orca.right = false;
+        }
+        else if(e.key == "s"||e.key == "KeyS"){
+          sPressed = true;
+          orca.up = false;
+        }
+        else if(e.key == "d"||e.key == "keyD"){
+           dPressed = true;
+           orca.right = true;
+        }
+        else if(e.key == "w"||e.key == "keyW"){
+           wPressed = true;
+           orca.up = true;
+        }
+        else if(e.key == "e"||e.key == "keyE"){
+          ePressed = true;
+        }
+        //changing variable status for the first set of controls
+        if(e.key == "Right"||e.key == "ArrowRight"){
+          rightPressed = true;
+          man.audio.play();
+          man.audio.loop = true;
+        }
+        else if(e.key == "Left"||e.key == "ArrowLeft"){
+          leftPressed = true;
+          man.audio.play();
+          man.audio.loop = true;
+        }
+        else if(e.key == "Up"||e.key == "ArrowUp"){
+          upPressed = true;
+          man.audio.play();
+          man.audio.loop = true;
+        }
+        else if(e.key == "Down"||e.key == "ArrowDown"){
+          downPressed = true;
+          man.audio.play();
+          man.audio.loop = true;
+        }
+        else if(e.key == "/"||e.key == "Slash"){
+          slashPressed = true;
+        }
+        //Changing variable status for the second set of controls
+      }
+      function keyUpHandler(e){
+        if(e.key == "a"||e.key == "KeyA"){
+          aPressed = false;
+        }
+        else if(e.key == "s"||e.key == "KeyS"){
+          sPressed = false;
+        }
+        else if(e.key == "d"||e.key == "keyD"){
+           dPressed = false;
+        }
+        else if(e.key == "w"||e.key == "keyW"){
+           wPressed = false;
+        }
+        else if(e.key == "e"||e.key == "keyE"){
+          ePressed = false;
+        }
+        //changing variable status for the first set of controls
+        if(e.key == "Right"||e.key == "ArrowRight"){
+          rightPressed = false;
+          man.audio.pause();
+          man.audio.loop = false;
+        }
+        else if(e.key == "Left"||e.key == "ArrowLeft"){
+          leftPressed = false;
+          man.audio.pause();
+          man.audio.loop = false;
+        }
+        else if(e.key == "Up"||e.key == "ArrowUp"){
+          upPressed = false;
+          man.audio.pause();
+          man.audio.loop = false;
+        }
+        else if(e.key == "Down"||e.key == "ArrowDown"){
+          downPressed = false;
+          man.audio.pause();
+          man.audio.loop = false;
+        }
+        else if(e.key == "/"||e.key == "Slash"){
+          slashPressed = false;
+        }
+        //Changing variable status for the second set of controls
+      }
+      function drawtanks(){
+        ctx.beginPath();
+        ctx.drawImage(background, 0, 0)
+        ctx.closePath();
+        ctx.beginPath();
+        ctx.translate(x1 + unitWidth / 2, y1 + unitWidth / 2);
+        ctx.rotate((orca.angle-45) * Math.PI / 180);
+        ctx.drawImage(orca, -unitWidth/2, -unitWidth/2);
+        ctx.rotate(((orca.angle-45)*Math.PI/180)*-1);
+        ctx.translate((x1 + unitWidth/2)*-1, (y1 + unitWidth/2)*-1);
+        ctx.closePath();
+        //Drawing the first tank
+        ctx.beginPath();
+        ctx.translate(x2 + unitWidth / 2, y2 + unitWidth / 2);
+        ctx.rotate(man.angle * Math.PI / 180);
+        ctx.drawImage(man, -unitWidth/2, -unitWidth/2);
+        ctx.rotate((man.angle*Math.PI/180)*-1);
+        ctx.translate((x2 + unitWidth/2)*-1, (y2 + unitWidth/2)*-1);
+        ctx.closePath();
+        //Drawing the second tank
+      }
+      function wallcollision(){
+        if(x1 + movex1 + unitWidth >= canvas.width) {
+          x1 = canvas.width - unitWidth - movex1;
+        }
+        if (x1 - movex1 <= 0){
+          x1 = 0 + movex1 + 1;
+        }
+        if (y1 - movey1 <= 0){
+          y1 = 0 + movey1 + 1;
+        }
+        if (y1 + movey1  + unitWidth >= canvas.height){
+          y1 = canvas.height - unitWidth - movey1;
+        }
+        if(x2 + movex2  + unitWidth >= canvas.width) {
+          x2 = canvas.width - unitWidth - movex2;
+        }
+        if (x2 - movex2 <= 0){
+          x2 = 0 + movex2 + 1;
+        }
+        if (y2 - movey2 <= 0){
+          y2 = 0 + movey2 + 1;
+        }
+        if (y2 + movey2  + unitWidth>= canvas.height){
+          y2 = canvas.height - unitWidth - movey2;
+        }
+      }
+      //Stopping the tank from moving past the borders of the canvas
+      function movement(){
+        if (dPressed){
+          orca.angle += 2;
+          if(orca.angle >= 360){
+            orca.angle -= 360;
+          }
+        }
+        if (aPressed){
+          orca.angle -= 2;
+          if(orca.angle <= -360){
+            orca.angle += 360;
+          }
+        }
+        if (wPressed){
+          y1 += movey1;
+          x1 += movex1
+
+        }
+        if (sPressed){
+          y1 -= movey1;
+          x1 -= movex1;
+        }
+        //Moving the first tank
+        if (rightPressed){
+          man.angle += 2;
+          if(orca.angle >= 360){
+            orca.angle -= 360;
+          }
+        }
+        if (leftPressed){
+          man.angle -= 2;
+          if(orca.angle <= -360){
+            orca.angle -= 360;
+          }
+        }
+        if (upPressed){
+          y2 += movey2;
+          x2 += movex2;
+        }
+        if (downPressed){
+          y2 -= movey2;
+          x2 -= movex2;
+        }
+        //Moving the second tank
+      }
+      function shoot(){
+        if (ePressed){
+          ctx.beginPath();
+          ctx.drawImage(fish, bx1, by1);
+          ctx.closePath();
+          orca.shot = true;
+          console.log("Orca shoots")
+        }
+        if (slashPressed){
+          ctx.beginPath();
+          ctx.drawImage(tomato, bx2, by2);
+          ctx.closePath();
+          man.shot = true;
+          console.log("Man shoots")
+        }
+        if(orca.shot){
+          bx1 += movebx1;
+          by1 += moveby1;
+          ctx.beginPath();
+          ctx.drawImage(fish, bx1, by1);
+          ctx.closePath();
+        }
+        else {
+          bx1 = x1 + 30;
+          by1 = y1;
+        }
+        if(man.shot){
+          bx2 += movebx2;
+          by2 += moveby2;
+          ctx.beginPath();
+          ctx.drawImage(tomato, bx2, by2);
+          ctx.closePath();
+        }
+        else {
+          bx2 = x2;
+          by2 = y2;
+        }
+      }
+      function bulletbounce(){
+        if(bx1 <= 0 || bx1 >= canvas.width){
+          movebx1 = -movebx1;
+        }
+        if(by1 <= 0 || by1 >= canvas.height){
+          moveby1 = -moveby1;
+        }
+        if(bx2 <= 0 || bx2 >= canvas.width){
+          movebx2 = -movebx2;
+        }
+        if(by2 <= 0 || by2 >= canvas.height){
+          moveby2 = -moveby2;
+        }
+      }
+      function bulletend(){
+        if(orca.shot){
+          btime1 += 1;
+        }
+        if(man.shot){
+          btime2 += 1;
+        }
+        if(btime1 >= 300){
+          orca.shot = false;
+          bx1 = x1 + 40;
+          by1 = y1;
+          btime1 = 0;
+        }
+        if(btime2 >= 300){
+          man.shot = false;
+          bx2 = x2;
+          by2 = y2;
+          btime2 = 0;
+        }
+      }
+      function bulletcollision(){
+        if(orca.shot && btime1 > 20) {
+          if (bx1 + bulletWidth >= x1 && bx1 <= x1 + unitWidth && by1 + bulletWidth >= y1 && by1 <= y1 + unitWidth) {
+            clearInterval(interval);
+            alert("Pirate Wins!");
+            fish.audio.play();
+          }
+          else if (bx1 + bulletWidth >= x2 && bx1 <= x2 + unitWidth && by1 + bulletWidth >= y2 && by1 <= y2 + unitWidth) {
+            clearInterval(interval);
+            alert("orca Wins!");
+            fish.audio.play();
+          }
+        }
+        else if(man.shot && btime2 > 20) {
+          if (bx2 + bulletWidth>= x1 && bx2 <= x1 + unitWidth && by2 + bulletWidth >= y1 && by2 <= y1 + unitWidth) {
+            alert("Pirate Wins!");
+            tomato.audio.play();
+            tomato.framecount++
+            btime2--
+            bx2 -= movebx2;
+            by2 -= moveby2
+            if(tomato.framecount == 2|| tomato.framecount == 6){
+              tomato.src = "Graphics/Bullets/TomatoFrame2.png";
+            }
+            else if(tomato.framecount == 4){
+              tomato.src = "Graphics/Bullets/TomatoFrame3.png";
+            }
+            else if(tomato.framecount == 8){
+              tomato.src = "Graphics/Bullets/Tomato.png"
+            }
+            else if(tomato.framecount == 10){
+              clearInterval(interval);
+            }
+          }
+          else if (bx2 + bulletWidth >= x2 && bx2 <= x2 + unitWidth && by2 + bulletWidth >= y2 && by2 <= y2 + unitWidth){
+            clearInterval(interval);
+            alert("orca Wins!");
+            tomato.audio.play();
+          }
+        }
+      }
+      function graphicMovement(){
+        if(orca.angle < -45 && orca.angle > -225){
+          orca.src = "Graphics/Units/OrcaSideways.png";
+        }
+        //else if(orca.angle > 135 && orca.angle < 315){
+          //orca.src = "Graphics/Units/OrcaSideways.png"
+        //}
+        else{
+          orca.src = "Graphics/Units/OrcaUpRight.png";
+        }
+      }
+      function movecalc(){
+        if(orca.angle == 0){
+          movex1 = 0;
+          movey1 = -2;
+          if(!orca.shot){
+            movebx1 = 0;
+            moveby1 = -5;
+          }
+        }
+        else if (orca.angle == 90 || orca.angle == -270){
+          movex1 = 2;
+          movey1 = 0;
+          if(!orca.shot){
+            movebx1 = 5;
+            moveby1 = 0;
+          }
+        }
+        else if (orca.angle == 180 || orca.angle == -180){
+          movex1 = 2;
+          movey1 = 0;
+          if(!orca.shot){
+            movebx1 = 5;
+            moveby1 = 0;
+          }
+        }
+        else if (orca.angle == 270 || orca.angle == -90){
+          movex1 = 0;
+          movey1 = -2;
+          if(!orca.shot){
+            movebx1 = 0;
+            moveby1 = -5;
+          }
+        }
+        else{
+          movex1 = Math.sin(orca.angle * Math.PI / 180)*(2/Math.sin(Math.PI/2))
+          movey1 = -Math.sin((90-orca.angle)*Math.PI/180)*(2/Math.sin(Math.PI/2));
+          if(!orca.shot){
+            movebx1 = Math.cos(orca.angle * (Math.PI / 180))*5;
+            moveby1 = Math.sin(orca.angle * (Math.PI / 180))*5;
+            if(orca.angle > 0 && orca.angle < 180){
+             movebx1 = Math.cos(orca.angle * Math.PI / 180)*5;
+             moveby1 = Math.sin(orca.angle * Math.PI / 180)*5;
+            }
+            else if(orca.angle > 90 && orca.angle < 180){
+              movebx1 = Math.cos(orca.angle * Math.PI / 180)*5;
+              moveby1 = Math.sin(orca.angle * Math.PI / 180)*5;
+            }
+            else if(orca.angle > 180 && orca.angle < 270){
+              movebx1 = Math.cos(orca.angle * Math.PI / 180)*5;
+              moveby1 = -Math.sin(orca.angle * Math.PI / 180)*5;
+            }
+            else if(orca.angle > 270 && orca.angle < 360){
+             movebx1 = Math.cos(orca.angle * Math.PI / 180)*5;
+              moveby1 = Math.sin(orca.angle * Math.PI / 180)*5;
+            }
+          }
+        }
+        if(man.angle == 0){
+          movex2 = 0;
+          movey2 = -2;
+          if(!man.shot){
+            movebx2 = 0;
+            moveby2 = -5;
+          }
+        }
+        else if (man.angle == 90 || man.angle == -270){
+          movex2 = 2;
+          movey2 = 0;
+          if(!man.shot){
+            movebx2 = 5;
+            moveby2 = 0;
+          }
+        }
+        else if (man.angle == 180 || man.angle == -180){
+          movex2 = 2;
+          movey2 = 0;
+          if(!man.shot){
+            movebx2 = 5;
+            moveby2 = 0;
+          }
+        }
+        else if (man.angle == 270 || man.angle == -90){
+          movex2 = 0;
+          movey2 = -2;
+          if(!man.shot){
+            movebx2 = 0;
+            moveby2 = -5;
+          }
+        }
+        else{
+          movex2 = Math.sin(man.angle * Math.PI / 180)*(2/Math.sin(Math.PI/2))
+          movey2 = -Math.sin((90-man.angle)*Math.PI/180)*(2/Math.sin(Math.PI/2));
+
+          if(!man.shot){
+            if(man.angle > 0 && man.angle < 180){
+              movebx2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+              moveby2 = -Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+            }
+            else if(man.angle > 90 && man.angle < 180){
+              movebx2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+              moveby2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+            }
+            else if(man.angle > 180 && man.angle < 270){
+              movebx2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+              moveby2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+            }
+            else if(man.angle > 270 && man.angle < 360){
+              movebx2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+              moveby2 = Math.sin(man.angle * Math.PI / 180)*(5/Math.sin(Math.PI/2));
+            }
+          }
+        }
+      }
+      function draw(){
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        //Clearing the canvas
+        drawtanks();
+        wallcollision();
+        movement();
+        shoot();
+        bulletbounce();
+        bulletend();
+        //graphicMovement();
+        bulletcollision();
+        movecalc();
+      }
+      var interval = setInterval(draw, 20)
+    </script>
+  </body>
+</html>

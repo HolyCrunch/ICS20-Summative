@@ -1,0 +1,108 @@
+<html lang="en">
+  <head>
+    <meta charset="urf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+
+    <title>Memory Game</title>
+
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 20px 0;
+        background: #6589f9;
+      }
+
+      .grid {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+      }
+
+      .card {
+        margin: 5px;
+        background-color: #6589f9;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center center;
+        height: 150px;
+        width: 150px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="game"></div>
+  </body>
+    <script>
+      const cardsArray = [
+        {
+          name: 'shell',
+          img: 'img/blueshell.png',
+        },
+        {
+          name: 'star',
+          img: 'img/star.png',
+        },
+        {
+          name: 'bobomb',
+          img: 'img/bobomb.png',
+        },
+        {
+          name: 'mario',
+          img: 'img/mario.png',
+        },
+        {
+          name: 'luigi',
+          img: 'img/luigi.png',
+        },
+        {
+          name: 'peach',
+          img: 'img/peach.png',
+        },
+        {
+          name: '1up',
+          img: 'img/1up.png',
+        },
+        {
+          name: 'mushroom',
+          img: 'img/mushroom.png',
+        },
+        {
+          name: 'thwomp',
+          img: 'img/thwomp.png',
+        },
+        {
+          name: 'bulletbill',
+          img: 'img/bulletbill.png',
+        },
+        {
+          name: 'coin',
+          img: 'img/coin.png',
+        },
+        {
+          name: 'goomba',
+          img: 'img/goomba.png',
+        },
+        ]
+        const game = document.getElementById('game')
+        const grid = document.createElement('section')
+        grid.setAttribute('class', 'grid')
+        game.appendChild(grid)
+        cardsArray.forEach(item => {
+          const card = document.createElement('div')
+          card.classList.add('card')
+          card.dataset.name = item.name
+          card.style.backgroundImage = `url(${item.img})`
+          grid.appendChild(card)
+        })
+    </script>
+  </body>
+</html>
